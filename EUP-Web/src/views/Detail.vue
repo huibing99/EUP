@@ -46,7 +46,7 @@
           <el-descriptions-item label="Uncertainty Analysis" span="4">
               <el-row>
                   <el-col :span="6">
-                      <el-progress type="circle" :percentage="70" status="warning"></el-progress>
+                      <el-progress type="circle" :percentage="unc" :status="unc > 50 ? 'warning' : 'success'"></el-progress>
                   </el-col>
                   <el-col :span="12">
                       <el-row>
@@ -54,7 +54,7 @@
                               macro-media environment uncertainty:
                           </el-col>
                           <el-col :span="6">
-                              <el-progress :percentage="43" :format="format" status="success"></el-progress>
+                            <el-progress :percentage="macro_unc" :format="format" :status="macro_unc > 60 ? 'warning' : 'success'"></el-progress>
                           </el-col>
                       </el-row>
                       <el-row>
@@ -62,7 +62,7 @@
                               micro-communicative environment uncertainty:
                           </el-col>
                           <el-col :span="6">
-                              <el-progress :percentage="50" :format="format" status="success"></el-progress>
+                            <el-progress :percentage="micro_unc" :format="format" :status="micro_unc > 60 ? 'warning' : 'success'"></el-progress>
                           </el-col>
                       </el-row>
                       <el-row>
@@ -70,7 +70,7 @@
                               physical environment uncertainty:
                           </el-col>
                           <el-col :span="6">
-                              <el-progress :percentage="55" :format="format" status="success"> </el-progress>
+                            <el-progress :percentage="physical_unc" :format="format" :status="physical_unc > 60 ? 'warning' : 'success'"></el-progress>
                           </el-col>
                       </el-row>
                       <el-row>
@@ -78,7 +78,7 @@
                               message-framing uncertainty:
                           </el-col>
                           <el-col :span="6">
-                              <el-progress :percentage="60" :format="format" status="warning"></el-progress>
+                            <el-progress :percentage="content_unc" :format="format" :status="content_unc > 60 ? 'warning' : 'success'"></el-progress>
                           </el-col>
                       </el-row>
                   </el-col>
@@ -95,9 +95,11 @@
 
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
+      id: '1',
       date: '2020-03-23',
       source: 'twitter',
       label: 'fake',
@@ -129,14 +131,50 @@ export default {
       }, {
         date:  '2020-03-23',
         content: "My husband and I tried to take Trump's coronavirus drug - now he is dead: Wife speaks out after they drank fish tank cleaner chloroquine because they mistook it for unproven treatment hydroxychlorquine"
-    }]
+    }],
+    macro_unc: 0,
+    micro_unc: 0,
+    content_unc: 0,
+    physical_unc: 0,
+    unc: 0,
     }
   },
+  created() {
+    this.load();
+  },
   methods: {
-        goBack() {
-            this.$router.go(-1); // 返回前一页
-        }
+    load(){
+      console.log(this.$route.params.id)
+      axios.get('/api/getDetail', {
+          params: {
+            id: this.$route.params.id
+        }})
+        .then(response => {
+          if (response.data.code == 200) {
+            console.log(response.data)
+            this.id = this.$route.params.id,
+            this.date = response.data.data.date,
+            this.source = response.data.data.source,
+            this.label = response.data.data.label,
+            this.label_2 = response.data.data.label_2,
+            this.content = response.data.data.content,
+            this.macro = response.data.data.macro,
+            this.micro = response.data.data.micro
+            this.macro_unc = response.data.data.macro_unc;
+            this.micro_unc = response.data.data.micro_unc;
+            this.content_unc = response.data.data.content_unc;
+            this.physical_unc = response.data.data.physical_unc;
+            this.unc = (response.data.data.macro_unc + response.data.data.micro_unc + response.data.data.physical_unc + response.data.data.content_unc)/4
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    goBack() {
+        this.$router.go(-1); // 返回前一页
     }
+  }
 }
 </script>
 
@@ -145,24 +183,13 @@ export default {
   margin-top: 40px;
   padding: 0 20px;
 }
-.title {
-    margin-top: 20px;
-    text-align: center;
-}
 
-.table {
-    margin-top: 80px;
-    margin-bottom: 50px;
-}
 .container {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.content {
-  flex: 1;
-}
 
 .center {
   display: flex;

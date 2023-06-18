@@ -10,7 +10,7 @@
       </el-header>
   
       <el-table :data="newsList" class="table">
-        <el-table-column label="Published Time" prop="time"></el-table-column>
+        <el-table-column label="Published Time" prop="date"></el-table-column>
         <el-table-column label="Content" width = 800>
           <template #default="{row}">
             {{ row.content }}

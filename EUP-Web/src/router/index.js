@@ -9,8 +9,9 @@ const router = createRouter({
       component: () => import('../views/News.vue')
     },
     {
-      path: '/detail',
+      path: '/detail/:id',
       name: 'detail',
+      props: true,
       component: () => import('../views/Detail.vue')
     }
   ]
