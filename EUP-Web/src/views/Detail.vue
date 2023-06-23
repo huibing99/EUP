@@ -13,6 +13,7 @@
           </el-descriptions-item>
           <el-descriptions-item label="Content" span=4>{{ this.content }}
           </el-descriptions-item>
+          
           <el-descriptions-item label="Macro media environment" :span="4">
               <el-table
                   :data="macro"
@@ -43,12 +44,45 @@
                   </el-table-column>
               </el-table>
           </el-descriptions-item>
+          
           <el-descriptions-item label="Uncertainty Analysis" span="4">
               <el-row>
-                  <el-col :span="6">
+                  <el-col :span="3">
                       <el-progress type="circle" :percentage="unc" :status="unc > 50 ? 'warning' : 'success'"></el-progress>
                   </el-col>
-                  <el-col :span="12">
+                  <el-col :span="3">
+                    <div class="statistic-card">
+                      <el-statistic :value=cases>
+                        <template #title>
+                          <div style="display: inline-flex; align-items: center">
+                            Daily number of cases
+                            <el-tooltip
+                              effect="dark"
+                              content="Number of users who logged into the product in one day"
+                              placement="top"
+                            >
+                              <el-icon style="margin-left: 4px" :size="12">
+                                <Warning />
+                              </el-icon>
+                            </el-tooltip>
+                          </div>
+                        </template>
+                      </el-statistic>
+                      <div class="statistic-footer">
+                        <div class="footer-item">
+                          <span>than yesterday</span>
+                          <span :class="percent[0] === '-' ? 'green' : 'red'">
+                            {{this.percent}}
+                            <el-icon>
+                              <CaretTop />
+                            </el-icon>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </el-col>
+
+                    <el-col :span="12" style="margin-top: 15px;">
                       <el-row>
                           <el-col :span="12">
                               macro-media environment uncertainty:
@@ -100,43 +134,20 @@ export default {
   data() {
     return {
       id: '1',
-      date: '2020-03-23',
-      source: 'twitter',
-      label: 'fake',
-      label_2: 'high',
-      content: 'Trump mentions it again, people will be breaking into pet stores. \n\nSales of fish tank additive skyrocket after studies say it could treat coronavirus https://t.co/tlo8fp2k3o via @nypost',
-      macro: [{
-        date:  '2020-03-23',
-        
-        content: "Man who tried to treat himself with hydroxychloroquine DIES: Couple ate fish tank cleaner thinking it was the malaria drug that Trump is touting as a miracle coronavirus remedy"
-      }, {
-        date:  '2020-03-23',
-        content: "Covetrus sees surge in online demand for pet products as coronavirus spreads"
-      }, {
-        date:  '2020-03-23',
-        content: "Fish tank treatment uses the same chemical in the drug Trump claims could be a 'game-changer' for treating coronavirus despite zero proof - and prices for it have surged to $500  "
-      }, {
-        date: '2020-03-20',
-        content: "Helena Bonham Carter stocks up on beauty products during outing with her son Billy, 16, and pet dog in London amid COVID-19 pandemic"     
-      }, {
-        date: '2020-03-23', 
-        content: "Amazon BANS sellers shipping non-essential items to its warehouses and will prioritize food, diapers, household cleaning products, and pet and medical supplies as it tries to handle HUGE surge in online orders amid coronavirus panic "
-      }],
-      micro: [{
-        date:  '2020-03-23',
-        content: 'RT @RexChapman: While social-distancing this daddy and daughter just caught her first fish.'
-      }, {
-        date:  '2020-03-22',
-        content: 'My fish died from the Corona virus\ud83d\ude14'
-      }, {
-        date:  '2020-03-23',
-        content: "My husband and I tried to take Trump's coronavirus drug - now he is dead: Wife speaks out after they drank fish tank cleaner chloroquine because they mistook it for unproven treatment hydroxychlorquine"
-    }],
-    macro_unc: 0,
-    micro_unc: 0,
-    content_unc: 0,
-    physical_unc: 0,
-    unc: 0,
+      date: '',
+      source: '',
+      label: '',
+      label_2: '',
+      content: '',
+      macro: [],
+      micro: [],
+      macro_unc: 0,
+      micro_unc: 0,
+      content_unc: 0,
+      physical_unc: 0,
+      unc: 0,
+      percent: '',
+      cases: 0
     }
   },
   created() {
@@ -165,6 +176,8 @@ export default {
             this.content_unc = response.data.data.content_unc;
             this.physical_unc = response.data.data.physical_unc;
             this.unc = (response.data.data.macro_unc + response.data.data.micro_unc + response.data.data.physical_unc + response.data.data.content_unc)/4
+            this.percent = response.data.data.percent;
+            this.cases = response.data.data.cases
           }
         })
         .catch(error => {
@@ -200,4 +213,46 @@ export default {
 .filler {
   flex: 1;
 }
+
+.el-descriptions__label {
+  font-weight: bold !important;
+}
+
+.statistic-card {
+  height: 100%;
+  padding: 20px;
+  border-radius: 4px;
+  background-color: var(--el-bg-color-overlay);
+}
+
+.statistic-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--el-text-color-regular);
+  margin-top: 16px;
+}
+
+.statistic-footer .footer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statistic-footer .footer-item span:last-child {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.green {
+  color: var(--el-color-success);
+}
+.red {
+  color: var(--el-color-error);
+}
+
+
 </style>

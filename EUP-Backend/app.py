@@ -3,7 +3,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-with open('./posts.json', 'r') as f:
+with open('./posts_3.json', 'r') as f:
     data = json.load(f)
 
 newslist = []
